@@ -5,7 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/free5gc/pfcp/logger"
+	"github.com/my-free5gc/pfcp/logger"
+	"github.com/nctu-ucr/onvmNet"
 )
 
 type TransactionType uint8
@@ -48,7 +49,7 @@ type Transaction struct {
 	MessageType    MessageType
 	TxType         TransactionType
 	EventChannel   chan EventType
-	Conn           *net.UDPConn
+	Conn           *onvmNet.ONVMConn
 	DestAddr       *net.UDPAddr
 	ConsumerAddr   string
 }
@@ -66,7 +67,17 @@ func NewTransaction(pfcpMSG Message, binaryMSG []byte, Conn *net.UDPConn, DestAd
 
 	if pfcpMSG.IsRequest() {
 		tx.TxType = SendingRequest
-		tx.ConsumerAddr = Conn.LocalAddr().String()
+		//turn onvmaddr to udpaddr
+		onvmaddr, ok := Conn.LocalAddr().(*onvmNet.ONVMAddr)
+		if !ok {
+			/********error handler?****************
+			errormsg := fmt.Errorf("In NewTransaction: can't convert onvmaddr to udpaddr")
+			fmt.Println(errormsg)
+			***************************************/
+		}
+		udpaddr := onvmaddr.ToUDPAddr()
+		tx.ConsumerAddr = udpaddr.String()		
+		//tx.ConsumerAddr = Conn.LocalAddr().String()
 	} else if pfcpMSG.IsResponse() {
 		tx.TxType = SendingResponse
 		tx.ConsumerAddr = DestAddr.String()
@@ -83,8 +94,10 @@ func (transaction *Transaction) Start() {
 	if transaction.TxType == SendingRequest {
 		for iter := 0; iter < NumOfResend; iter++ {
 			timer := time.NewTimer(ResendRequestTimeOutPeriod * time.Second)
-
-			_, err := transaction.Conn.WriteToUDP(transaction.SendMsg, transaction.DestAddr)
+			//trans udpaddr to onvmaddr
+			ONVMDestAddr := onvmNet.UDPToONVMAddr(transaction.DestAddr)
+			_, err := transaction.Conn.WriteToONVM(transaction.SendMsg, ONVMDestAddr)
+			//_, err := transaction.Conn.WriteToUDP(transaction.SendMsg, transaction.DestAddr)
 
 			if err != nil {
 				logger.PFCPLog.Warnf("Request Transaction [%d]: %s\n", transaction.SequenceNumber, err)
@@ -108,8 +121,10 @@ func (transaction *Transaction) Start() {
 		//Todo :Implement SendingResponse type of reliable delivery
 		timer := time.NewTimer(ResendResponseTimeOutPeriod * time.Second)
 		for iter := 0; iter < NumOfResend; iter++ {
-
-			_, err := transaction.Conn.WriteToUDP(transaction.SendMsg, transaction.DestAddr)
+			//trans udpaddr to onvmaddr
+			ONVMDestAddr := onvmNet.UDPToONVMAddr(transaction.DestAddr)
+			_, err := transaction.Conn.WriteToONVM(transaction.SendMsg, ONVMDestAddr)
+			//_, err := transaction.Conn.WriteToUDP(transaction.SendMsg, transaction.DestAddr)
 
 			if err != nil {
 				logger.PFCPLog.Warnf("Response Transaction [%d]: sending error\n", transaction.SequenceNumber)

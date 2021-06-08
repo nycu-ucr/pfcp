@@ -5,8 +5,8 @@ import (
 	"net"
 	"sync"
 
-	"github.com/free5gc/pfcp"
-	"github.com/free5gc/pfcp/logger"
+	"github.com/my-free5gc/pfcp"
+	"github.com/my-free5gc/pfcp/logger"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
 
 type PfcpServer struct {
 	Addr string
-	Conn *net.UDPConn
+	Conn *onvmNet.ONVMConn
 	//Consumer Table
 	//Map Consumer IP to its tx table
 	ConsumerTable ConsumerTable
@@ -60,14 +60,19 @@ func (pfcpServer *PfcpServer) Listen() error {
 		Port: PFCP_PORT,
 	}
 
-	conn, err := net.ListenUDP("udp", addr)
+	//conn, err := net.ListenUDP("udp", addr)
+	//turn udpaddr to onvmaddr
+	ONVMaddr := onvmNet.UDPToONVMAddr(addr)
+	conn, err := onvmNet.ListenONVM("onvm", ONVMaddr)
 	pfcpServer.Conn = conn
 	return err
 }
 
 func (pfcpServer *PfcpServer) ReadFrom(msg *pfcp.Message) (*net.UDPAddr, error) {
 	buf := make([]byte, PFCP_MAX_UDP_LEN)
-	n, addr, err := pfcpServer.Conn.ReadFromUDP(buf)
+	//need to turn onvmaddr to udpaddr
+	n, ONVMaddr, err := pfcpServer.Conn.ReadFromONVM(buf)
+	addr := ONVMaddr.ToUDPAddr()
 	if err != nil {
 		return addr, err
 	}
@@ -92,7 +97,13 @@ func (pfcpServer *PfcpServer) ReadFrom(msg *pfcp.Message) (*net.UDPAddr, error) 
 			return addr, nil
 		}
 	} else if msg.IsResponse() {
-		tx, err := pfcpServer.FindTransaction(msg, pfcpServer.Conn.LocalAddr().(*net.UDPAddr))
+		//trans onvmaddr to udpaddr
+		onvmaddr, ok := pfcpServer.Conn.LocalAddr().(*onvmNet.ONVMAddr)
+		if !ok {
+			return addr, fmt.Errorf("Can't convert to udpaddr")
+		}
+		udpaddr := onvmaddr.ToUDPAddr()
+		tx, err := pfcpServer.FindTransaction(msg, udpaddr)
 		if err != nil {
 			return addr, err
 		}
