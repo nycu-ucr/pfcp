@@ -5,7 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/my-free5gc/pfcp/logger"
+	"github.com/free5gc/pfcp/logger"
+	//"github.com/my-free5gc/pfcp/logger"
 	"github.com/nctu-ucr/onvmNet"
 )
 
@@ -55,7 +56,7 @@ type Transaction struct {
 }
 
 // NewTransaction - create pfcp transaction object
-func NewTransaction(pfcpMSG Message, binaryMSG []byte, Conn *net.UDPConn, DestAddr *net.UDPAddr) (tx *Transaction) {
+func NewTransaction(pfcpMSG Message, binaryMSG []byte, Conn *onvmNet.ONVMConn, DestAddr *net.UDPAddr) (tx *Transaction) {
 	tx = &Transaction{
 		SendMsg:        binaryMSG,
 		SequenceNumber: pfcpMSG.Header.SequenceNumber,
