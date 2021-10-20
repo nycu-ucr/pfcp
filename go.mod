@@ -1,4 +1,4 @@
-module github.com/my-free5gc/pfcp
+module github.com/nctu-ucr/pfcp
 
 go 1.14
 
@@ -6,7 +6,6 @@ require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/free5gc/logger_conf v1.0.0
 	github.com/free5gc/logger_util v1.0.0
-	github.com/free5gc/pfcp v1.0.1
 	github.com/free5gc/tlv v1.0.0
 	github.com/free5gc/util_3gpp v1.0.0
 	github.com/gin-gonic/gin v1.7.2 // indirect

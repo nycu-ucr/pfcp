@@ -6,8 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/free5gc/pfcp"
-	//"github.com/my-free5gc/pfcp"
+	"github.com/nctu-ucr/pfcp"
 )
 
 const (
