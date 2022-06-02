@@ -3,7 +3,7 @@ package pfcpUdp
 import (
 	"net"
 
-	"github.com/nctu-ucr/pfcp"
+	"github.com/nycu-ucr/pfcp"
 )
 
 type Message struct {

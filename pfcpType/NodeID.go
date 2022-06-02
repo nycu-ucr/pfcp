@@ -5,7 +5,7 @@ import (
 	"math/bits"
 	"net"
 
-	"github.com/nctu-ucr/pfcp/logger"
+	"github.com/nycu-ucr/pfcp/logger"
 )
 
 const (

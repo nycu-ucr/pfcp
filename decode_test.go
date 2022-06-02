@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/nctu-ucr/pfcp"
-	"github.com/nctu-ucr/pfcp/pfcpType"
+	"github.com/nycu-ucr/pfcp"
+	"github.com/nycu-ucr/pfcp/pfcpType"
 )
 
 func TestUnmarshal(t *testing.T) {

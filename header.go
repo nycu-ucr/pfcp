@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 
-	"github.com/nctu-ucr/pfcp/logger"
+	"github.com/nycu-ucr/pfcp/logger"
 )
 
 const PfcpVersion uint8 = 1

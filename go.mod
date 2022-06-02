@@ -1,4 +1,4 @@
-module github.com/nctu-ucr/pfcp
+module github.com/nycu-ucr/pfcp
 
 go 1.14
 

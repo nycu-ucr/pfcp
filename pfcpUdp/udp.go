@@ -5,8 +5,8 @@ import (
 	"net"
 	"sync"
 
-	"github.com/nctu-ucr/pfcp"
-	"github.com/nctu-ucr/pfcp/logger"
+	"github.com/nycu-ucr/pfcp"
+	"github.com/nycu-ucr/pfcp/logger"
 	"github.com/nctu-ucr/onvmNet"
 )
 

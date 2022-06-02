@@ -1,7 +1,7 @@
 package pfcp
 
 import (
-	"github.com/nctu-ucr/pfcp/pfcpType"
+	"github.com/nycu-ucr/pfcp/pfcpType"
 	"github.com/free5gc/util_3gpp"
 )
 

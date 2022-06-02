@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/nctu-ucr/pfcp"
+	"github.com/nycu-ucr/pfcp"
 )
 
 const (
