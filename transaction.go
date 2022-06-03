@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/nycu-ucr/pfcp/logger"
-	"github.com/nctu-ucr/onvmNet"
+	"github.com/nycu-ucr/onvmNet"
 )
 
 type TransactionType uint8
