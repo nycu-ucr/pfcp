@@ -74,8 +74,9 @@ func (pfcpServer *PfcpServer) Listen() error {
 func (pfcpServer *PfcpServer) ReadFrom(msg *pfcp.Message) (*net.UDPAddr, error) {
 	buf := make([]byte, PFCP_MAX_UDP_LEN)
 	//need to turn onvmaddr to udpaddr
-	n, ONVMaddr, err := pfcpServer.Conn.ReadFromONVM(buf)
-	addr := ONVMaddr.ToUDPAddr()
+	// n, ONVMaddr, err := pfcpServer.Conn.ReadFromONVM(buf)
+	n, addr, err := pfcpServer.Conn.ReadFrom(buf)
+	// addr := ONVMaddr.ToUDPAddr()
 	if err != nil {
 		return addr, err
 	}
