@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/nycu-ucr/onvmpoller"
 	"github.com/nycu-ucr/pfcp/logger"
-	"github.com/nycu-ucr/onvmNet"
 )
 
 type TransactionType uint8
@@ -49,13 +49,13 @@ type Transaction struct {
 	MessageType    MessageType
 	TxType         TransactionType
 	EventChannel   chan EventType
-	Conn           *onvmNet.ONVMConn
+	Conn           *onvmpoller.UDP_Connection
 	DestAddr       *net.UDPAddr
 	ConsumerAddr   string
 }
 
 // NewTransaction - create pfcp transaction object
-func NewTransaction(pfcpMSG Message, binaryMSG []byte, Conn *onvmNet.ONVMConn, DestAddr *net.UDPAddr) (tx *Transaction) {
+func NewTransaction(pfcpMSG Message, binaryMSG []byte, Conn *onvmpoller.UDP_Connection, DestAddr *net.UDPAddr) (tx *Transaction) {
 	tx = &Transaction{
 		SendMsg:        binaryMSG,
 		SequenceNumber: pfcpMSG.Header.SequenceNumber,
@@ -68,15 +68,16 @@ func NewTransaction(pfcpMSG Message, binaryMSG []byte, Conn *onvmNet.ONVMConn, D
 	if pfcpMSG.IsRequest() {
 		tx.TxType = SendingRequest
 		//turn onvmaddr to udpaddr
-		onvmaddr, ok := Conn.LocalAddr().(*onvmNet.ONVMAddr)
-		if !ok {
-			/********error handler?****************
-			errormsg := fmt.Errorf("In NewTransaction: can't convert onvmaddr to udpaddr")
-			fmt.Println(errormsg)
-			***************************************/
-		}
-		udpaddr := onvmaddr.ToUDPAddr()
-		tx.ConsumerAddr = udpaddr.String()		
+		// onvmaddr, ok := Conn.LocalAddr().(*onvmNet.ONVMAddr)
+		// if !ok {
+		// 	/********error handler?****************
+		// 	errormsg := fmt.Errorf("In NewTransaction: can't convert onvmaddr to udpaddr")
+		// 	fmt.Println(errormsg)
+		// 	***************************************/
+		// }
+		// udpaddr := onvmaddr.ToUDPAddr()
+		udpaddr := Conn.LocalAddr()
+		tx.ConsumerAddr = udpaddr.String()
 		//tx.ConsumerAddr = Conn.LocalAddr().String()
 	} else if pfcpMSG.IsResponse() {
 		tx.TxType = SendingResponse
@@ -95,8 +96,9 @@ func (transaction *Transaction) Start() {
 		for iter := 0; iter < NumOfResend; iter++ {
 			timer := time.NewTimer(ResendRequestTimeOutPeriod * time.Second)
 			//trans udpaddr to onvmaddr
-			ONVMDestAddr := onvmNet.UDPToONVMAddr(transaction.DestAddr)
-			_, err := transaction.Conn.WriteToONVM(transaction.SendMsg, ONVMDestAddr)
+			// ONVMDestAddr := onvmNet.UDPToONVMAddr(transaction.DestAddr)
+			// _, err := transaction.Conn.WriteToONVM(transaction.SendMsg, ONVMDestAddr)
+			_, err := transaction.Conn.WriteTo(transaction.SendMsg, transaction.DestAddr)
 			//_, err := transaction.Conn.WriteToUDP(transaction.SendMsg, transaction.DestAddr)
 
 			if err != nil {
@@ -122,9 +124,10 @@ func (transaction *Transaction) Start() {
 		timer := time.NewTimer(ResendResponseTimeOutPeriod * time.Second)
 		for iter := 0; iter < NumOfResend; iter++ {
 			//trans udpaddr to onvmaddr
-			ONVMDestAddr := onvmNet.UDPToONVMAddr(transaction.DestAddr)
-			_, err := transaction.Conn.WriteToONVM(transaction.SendMsg, ONVMDestAddr)
+			// ONVMDestAddr := onvmNet.UDPToONVMAddr(transaction.DestAddr)
+			// _, err := transaction.Conn.WriteToONVM(transaction.SendMsg, ONVMDestAddr)
 			//_, err := transaction.Conn.WriteToUDP(transaction.SendMsg, transaction.DestAddr)
+			_, err := transaction.Conn.WriteTo(transaction.SendMsg, transaction.DestAddr)
 
 			if err != nil {
 				logger.PFCPLog.Warnf("Response Transaction [%d]: sending error\n", transaction.SequenceNumber)

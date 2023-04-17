@@ -5,9 +5,9 @@ import (
 	"net"
 	"sync"
 
+	"github.com/nycu-ucr/onvmpoller"
 	"github.com/nycu-ucr/pfcp"
 	"github.com/nycu-ucr/pfcp/logger"
-	"github.com/nycu-ucr/onvmNet"
 )
 
 const (
@@ -17,7 +17,8 @@ const (
 
 type PfcpServer struct {
 	Addr string
-	Conn *onvmNet.ONVMConn
+	// Conn *onvmNet.ONVMConn
+	Conn *onvmpoller.UDP_Connection
 	//Consumer Table
 	//Map Consumer IP to its tx table
 	ConsumerTable ConsumerTable
@@ -63,8 +64,9 @@ func (pfcpServer *PfcpServer) Listen() error {
 
 	//conn, err := net.ListenUDP("udp", addr)
 	//turn udpaddr to onvmaddr
-	ONVMaddr := onvmNet.UDPToONVMAddr(addr)
-	conn, err := onvmNet.ListenONVM("onvm", ONVMaddr)
+	// ONVMaddr := onvmNet.UDPToONVMAddr(addr)
+	// conn, err := onvmNet.ListenONVM("onvm", ONVMaddr)
+	conn, err := onvmpoller.ListenXIO_UDP("onvm-udp", addr)
 	pfcpServer.Conn = conn
 	return err
 }
@@ -99,11 +101,12 @@ func (pfcpServer *PfcpServer) ReadFrom(msg *pfcp.Message) (*net.UDPAddr, error) 
 		}
 	} else if msg.IsResponse() {
 		//trans onvmaddr to udpaddr
-		onvmaddr, ok := pfcpServer.Conn.LocalAddr().(*onvmNet.ONVMAddr)
-		if !ok {
-			return addr, fmt.Errorf("Can't convert to udpaddr")
-		}
-		udpaddr := onvmaddr.ToUDPAddr()
+		// onvmaddr, ok := pfcpServer.Conn.LocalAddr().(*onvmNet.ONVMAddr)
+		// if !ok {
+		// 	return addr, fmt.Errorf("Can't convert to udpaddr")
+		// }
+		// udpaddr := onvmaddr.ToUDPAddr()
+		udpaddr := pfcpServer.Conn.LocalAddr()
 		tx, err := pfcpServer.FindTransaction(msg, udpaddr)
 		if err != nil {
 			return addr, err

@@ -14,11 +14,10 @@ require (
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
-	github.com/nycu-ucr/onvmNet v0.0.0-20220603095325-79bca2f2efde
-	github.com/sirupsen/logrus v1.8.1
+	github.com/nycu-ucr/onvmpoller v0.0.0-20230412054001-1245b53ed938
+	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.7.0
 	github.com/ugorji/go v1.2.6 // indirect
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
-	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
 	golang.org/x/text v0.3.6 // indirect
 )
