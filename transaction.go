@@ -95,6 +95,7 @@ func (transaction *Transaction) Start() {
 	if transaction.TxType == SendingRequest {
 		for iter := 0; iter < NumOfResend; iter++ {
 			timer := time.NewTimer(ResendRequestTimeOutPeriod * time.Second)
+			t1 := time.Now()
 			//trans udpaddr to onvmaddr
 			// ONVMDestAddr := onvmNet.UDPToONVMAddr(transaction.DestAddr)
 			// _, err := transaction.Conn.WriteToONVM(transaction.SendMsg, ONVMDestAddr)
@@ -110,6 +111,8 @@ func (transaction *Transaction) Start() {
 			case event := <-transaction.EventChannel:
 
 				if event == ReceiveValidResponse {
+					t2 := time.Now()
+					logger.PFCPLog.Infoln("\033[32m", "############## Latency", t2.Sub(t1).Seconds(), "(second) ##############", "\033[0m")
 					logger.PFCPLog.Tracef("Request Transaction [%d]: receive valid response\n", transaction.SequenceNumber)
 					return
 				}
