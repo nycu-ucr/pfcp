@@ -168,7 +168,7 @@ func (transaction *Transaction) Start() {
 			}
 
 			select {
-			case event.Type := <-transaction.EventChannel:
+			case event := <-transaction.EventChannel:
 
 				if event.Type == ReceiveEventTypeValidResponse {
 					t2 := time.Now()
@@ -198,7 +198,7 @@ func (transaction *Transaction) Start() {
 			}
 
 			select {
-			case event.Type := <-transaction.EventChannel:
+			case event := <-transaction.EventChannel:
 
 				if event.Type == ReceiveEventTypeResendRequest {
 					logger.PFCPLog.Tracef("Response Transaction [%d]: receive resend request\n", transaction.SequenceNumber)
