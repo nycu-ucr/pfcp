@@ -50,7 +50,7 @@ type Transaction struct {
 	SequenceNumber uint32
 	MessageType    MessageType
 	TxType         TransactionType
-	EventChannel   chan ReceiveEventType
+	EventChannel   chan ReceiveEvent
 	Conn           *onvmpoller.UDP_Connection
 	DestAddr       *net.UDPAddr
 	ConsumerAddr   string
@@ -62,7 +62,7 @@ func NewTransaction(pfcpMSG *Message, binaryMSG []byte, Conn *onvmpoller.UDP_Con
 		SendMsg:        binaryMSG,
 		SequenceNumber: pfcpMSG.Header.SequenceNumber,
 		MessageType:    pfcpMSG.Header.MessageType,
-		EventChannel:   make(chan ReceiveEventType),
+		EventChannel:   make(chan ReceiveEvent),
 		Conn:           Conn,
 		DestAddr:       DestAddr,
 	}
