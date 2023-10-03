@@ -11,6 +11,6 @@ type ReceiveEvent struct {
 type ReceiveEventType uint8
 
 const (
-	ReceiveEventTypeResendRequest EventType = iota
+	ReceiveEventTypeResendRequest ReceiveEventType = iota
 	ReceiveEventTypeValidResponse
 )
