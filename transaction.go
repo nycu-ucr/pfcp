@@ -168,9 +168,9 @@ func (transaction *Transaction) Start() {
 			}
 
 			select {
-			case event := <-transaction.EventChannel:
+			case event.Type := <-transaction.EventChannel:
 
-				if event == ReceiveEventTypeValidResponse {
+				if event.Type == ReceiveEventTypeValidResponse {
 					t2 := time.Now()
 					logger.PFCPLog.Infoln("\033[32m", "############## Latency", t2.Sub(t1).Seconds(), "(second) ##############", "\033[0m")
 					logger.PFCPLog.Tracef("Request Transaction [%d]: receive valid response\n", transaction.SequenceNumber)
@@ -198,9 +198,9 @@ func (transaction *Transaction) Start() {
 			}
 
 			select {
-			case event := <-transaction.EventChannel:
+			case event.Type := <-transaction.EventChannel:
 
-				if event == ReceiveEventTypeResendRequest {
+				if event.Type == ReceiveEventTypeResendRequest {
 					logger.PFCPLog.Tracef("Response Transaction [%d]: receive resend request\n", transaction.SequenceNumber)
 					logger.PFCPLog.Tracef("Response Transaction [%d]: Resend packet\n", transaction.SequenceNumber)
 					continue
