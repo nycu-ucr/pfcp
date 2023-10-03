@@ -10,7 +10,6 @@ type Message struct {
 }
 
 func (message *Message) IsRequest() (IsRequest bool) {
-
 	switch message.Header.MessageType {
 	case PFCP_HEARTBEAT_REQUEST:
 		IsRequest = true
@@ -279,10 +278,11 @@ type CreateURR struct {
 	LinkedURRID               *pfcpType.LinkedURRID               `tlv:"82"`
 	MeasurementInformation    *pfcpType.MeasurementInformation    `tlv:"100"`
 	TimeQuotaMechanism        *pfcpType.TimeQuotaMechanism        `tlv:"115"`
-	AggregatedURRs            *AggregatedURRs                     `tlv:"118"`
+	AggregatedURRs            []*AggregatedURRs                   `tlv:"118"`
 	FARIDForQuotaAction       *pfcpType.FARID                     `tlv:"108"`
 	EthernetInactivityTimer   *pfcpType.EthernetInactivityTimer   `tlv:"146"`
 	AdditionalMonitoringTime  *AdditionalMonitoringTime           `tlv:"147"`
+	QuotaValidityTime         *pfcpType.QuotaValidityTime         `tlv:"181"`
 }
 
 type AggregatedURRs struct {
@@ -389,7 +389,7 @@ type PFCPSessionModificationRequest struct {
 	UpdateBAR                *UpdateBARPFCPSessionModificationRequest `tlv:"86"`
 	UpdateTrafficEndpoint    *UpdateTrafficEndpoint                   `tlv:"129"`
 	PFCPSMReqFlags           *pfcpType.PFCPSMReqFlags                 `tlv:"49"`
-	QueryURR                 *QueryURR                                `tlv:"77"`
+	QueryURR                 []*QueryURR                              `tlv:"77"`
 	PGWCFQCSID               *pfcpType.FQCSID                         `tlv:"65"`
 	SGWCFQCSID               *pfcpType.FQCSID                         `tlv:"65"`
 	MMEFQCSID                *pfcpType.FQCSID                         `tlv:"65"`
@@ -464,6 +464,7 @@ type UpdateURR struct {
 	FARIDForQuotaAction       *pfcpType.FARID                     `tlv:"108"`
 	EthernetInactivityTimer   *pfcpType.EthernetInactivityTimer   `tlv:"146"`
 	AdditionalMonitoringTime  *AdditionalMonitoringTime           `tlv:"147"`
+	QuotaValidityTime         *pfcpType.QuotaValidityTime         `tlv:"181"`
 }
 
 type UpdateQER struct {
@@ -523,15 +524,15 @@ type RemoveTrafficEndpoint struct {
 }
 
 type PFCPSessionModificationResponse struct {
-	Cause                             *pfcpType.Cause                             `tlv:"19"`
-	OffendingIE                       *pfcpType.OffendingIE                       `tlv:"40"`
-	CreatedPDR                        *CreatedPDR                                 `tlv:"8"`
-	LoadControlInformation            *LoadControlInformation                     `tlv:"51"`
-	OverloadControlInformation        *OverloadControlInformation                 `tlv:"54"`
-	UsageReport                       *UsageReportPFCPSessionModificationResponse `tlv:"78"`
-	FailedRuleID                      *pfcpType.FailedRuleID                      `tlv:"114"`
-	AdditionalUsageReportsInformation *pfcpType.AdditionalUsageReportsInformation `tlv:"126"`
-	CreatedUpdatedTrafficEndpoint     *CreatedTrafficEndpoint                     `tlv:"128"`
+	Cause                             *pfcpType.Cause                               `tlv:"19"`
+	OffendingIE                       *pfcpType.OffendingIE                         `tlv:"40"`
+	CreatedPDR                        *CreatedPDR                                   `tlv:"8"`
+	LoadControlInformation            *LoadControlInformation                       `tlv:"51"`
+	OverloadControlInformation        *OverloadControlInformation                   `tlv:"54"`
+	UsageReport                       []*UsageReportPFCPSessionModificationResponse `tlv:"78"`
+	FailedRuleID                      *pfcpType.FailedRuleID                        `tlv:"114"`
+	AdditionalUsageReportsInformation *pfcpType.AdditionalUsageReportsInformation   `tlv:"126"`
+	CreatedUpdatedTrafficEndpoint     *CreatedTrafficEndpoint                       `tlv:"128"`
 }
 
 type UsageReportPFCPSessionModificationResponse struct {
@@ -549,15 +550,14 @@ type UsageReportPFCPSessionModificationResponse struct {
 	EthernetTrafficInformation *EthernetTrafficInformation   `tlv:"143"`
 }
 
-type PFCPSessionDeletionRequest struct {
-}
+type PFCPSessionDeletionRequest struct{}
 
 type PFCPSessionDeletionResponse struct {
-	Cause                      *pfcpType.Cause                         `tlv:"19"`
-	OffendingIE                *pfcpType.OffendingIE                   `tlv:"40"`
-	LoadControlInformation     *LoadControlInformation                 `tlv:"51"`
-	OverloadControlInformation *OverloadControlInformation             `tlv:"54"`
-	UsageReport                *UsageReportPFCPSessionDeletionResponse `tlv:"79"`
+	Cause                      *pfcpType.Cause                           `tlv:"19"`
+	OffendingIE                *pfcpType.OffendingIE                     `tlv:"40"`
+	LoadControlInformation     *LoadControlInformation                   `tlv:"51"`
+	OverloadControlInformation *OverloadControlInformation               `tlv:"54"`
+	UsageReport                []*UsageReportPFCPSessionDeletionResponse `tlv:"79"`
 }
 
 type UsageReportPFCPSessionDeletionResponse struct {
@@ -577,7 +577,7 @@ type UsageReportPFCPSessionDeletionResponse struct {
 type PFCPSessionReportRequest struct {
 	ReportType                        *pfcpType.ReportType                        `tlv:"39"`
 	DownlinkDataReport                *DownlinkDataReport                         `tlv:"83"`
-	UsageReport                       *UsageReportPFCPSessionReportRequest        `tlv:"80"`
+	UsageReport                       []*UsageReportPFCPSessionReportRequest      `tlv:"80"`
 	ErrorIndicationReport             *ErrorIndicationReport                      `tlv:"99"`
 	LoadControlInformation            *LoadControlInformation                     `tlv:"51"`
 	OverloadControlInformation        *OverloadControlInformation                 `tlv:"54"`
