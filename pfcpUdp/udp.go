@@ -79,7 +79,7 @@ func (pfcpServer *PfcpServer) Listen() error {
 
 func (pfcpServer *PfcpServer) ReadFrom() (*Message, error) {
 	buf := make([]byte, PFCP_MAX_UDP_LEN)
-	n, addr, err := pfcpServer.Conn.ReadFromUDP(buf)
+	n, addr, err := pfcpServer.Conn.ReadFrom(buf)
 	if err != nil {
 		return nil, err
 	}
