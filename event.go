@@ -1,8 +1,14 @@
 package pfcp
 
-type EventType uint8
+import "net"
+
+type ReceiveEvent struct {
+	Type       ReceiveEventType
+	RemoteAddr *net.UDPAddr
+	RcvMsg     *Message
+}
 
 const (
-	ReceiveResendRequest EventType = iota
-	ReceiveValidResponse
+	ReceiveEventTypeResendRequest EventType = iota
+	ReceiveEventTypeValidResponse
 )

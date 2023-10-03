@@ -1,6 +1,8 @@
 package pfcp
 
 import (
+	"errors"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -97,7 +99,7 @@ func (tx *Transaction) StartSendingResponse() error {
 	logger.PFCPLog.Tracef("Start Response Transaction [%d]", tx.SequenceNumber)
 
 	for {
-		_, err := tx.Conn.WriteToUDP(tx.SendMsg, tx.DestAddr)
+		_, err := tx.Conn.WriteTo(tx.SendMsg, tx.DestAddr)
 		if err != nil {
 			return fmt.Errorf("Response Transaction [%d]: sending error", tx.SequenceNumber)
 		}
@@ -126,7 +128,7 @@ func (tx *Transaction) StartSendingRequest() (*ReceiveEvent, error) {
 	logger.PFCPLog.Tracef("Start Request Transaction [%d]", tx.SequenceNumber)
 
 	for iter := 0; iter < NumOfResend; iter++ {
-		_, err := tx.Conn.WriteToUDP(tx.SendMsg, tx.DestAddr)
+		_, err := tx.Conn.WriteTo(tx.SendMsg, tx.DestAddr)
 		if err != nil {
 			return nil, fmt.Errorf("Request Transaction [%d]: %s", tx.SequenceNumber, err)
 		}
