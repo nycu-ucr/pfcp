@@ -50,7 +50,7 @@ type Transaction struct {
 	SequenceNumber uint32
 	MessageType    MessageType
 	TxType         TransactionType
-	EventChannel   chan EventType
+	EventChannel   chan ReceiveEventType
 	Conn           *onvmpoller.UDP_Connection
 	DestAddr       *net.UDPAddr
 	ConsumerAddr   string
@@ -170,7 +170,7 @@ func (transaction *Transaction) Start() {
 			select {
 			case event := <-transaction.EventChannel:
 
-				if event == ReceiveValidResponse {
+				if event == ReceiveEventTypeValidResponse {
 					t2 := time.Now()
 					logger.PFCPLog.Infoln("\033[32m", "############## Latency", t2.Sub(t1).Seconds(), "(second) ##############", "\033[0m")
 					logger.PFCPLog.Tracef("Request Transaction [%d]: receive valid response\n", transaction.SequenceNumber)
@@ -200,7 +200,7 @@ func (transaction *Transaction) Start() {
 			select {
 			case event := <-transaction.EventChannel:
 
-				if event == ReceiveResendRequest {
+				if event == ReceiveEventTypeResendRequest {
 					logger.PFCPLog.Tracef("Response Transaction [%d]: receive resend request\n", transaction.SequenceNumber)
 					logger.PFCPLog.Tracef("Response Transaction [%d]: Resend packet\n", transaction.SequenceNumber)
 					continue
