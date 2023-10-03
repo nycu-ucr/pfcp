@@ -8,6 +8,8 @@ type ReceiveEvent struct {
 	RcvMsg     *Message
 }
 
+type ReceiveEventType uint8
+
 const (
 	ReceiveEventTypeResendRequest EventType = iota
 	ReceiveEventTypeValidResponse
