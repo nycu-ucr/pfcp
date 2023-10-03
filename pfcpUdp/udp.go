@@ -16,6 +16,8 @@ const (
 	PFCP_MAX_UDP_LEN = 2048
 )
 
+var ErrReceivedResentRequest = errors.New("received a request that is re-sent")
+
 type PfcpServer struct {
 	Addr string
 	// Conn *onvmNet.ONVMConn
@@ -111,7 +113,7 @@ func (pfcpServer *PfcpServer) ReadFrom() (*Message, error) {
 			return msg, nil
 		}
 	} else if pfcpMsg.IsResponse() {
-		tx, err := pfcpServer.FindTransaction(pfcpMsg, pfcpServer.Conn.LocalAddr().(*net.UDPAddr))
+		tx, err := pfcpServer.FindTransaction(pfcpMsg, pfcpServer.Conn.LocalAddr())
 		if err != nil {
 			return msg, err
 		}
