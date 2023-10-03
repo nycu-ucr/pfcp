@@ -62,7 +62,7 @@ func NewTransaction(pfcpMSG *Message, binaryMSG []byte, Conn *onvmpoller.UDP_Con
 		SendMsg:        binaryMSG,
 		SequenceNumber: pfcpMSG.Header.SequenceNumber,
 		MessageType:    pfcpMSG.Header.MessageType,
-		EventChannel:   make(chan EventType),
+		EventChannel:   make(chan ReceiveEventType),
 		Conn:           Conn,
 		DestAddr:       DestAddr,
 	}
