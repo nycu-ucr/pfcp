@@ -77,50 +77,43 @@ func (pfcpServer *PfcpServer) Listen() error {
 	return err
 }
 
-func (pfcpServer *PfcpServer) ReadFrom(msg *pfcp.Message) (*net.UDPAddr, error) {
+func (pfcpServer *PfcpServer) ReadFrom() (*Message, error) {
 	buf := make([]byte, PFCP_MAX_UDP_LEN)
-	//need to turn onvmaddr to udpaddr
-	// n, ONVMaddr, err := pfcpServer.Conn.ReadFromONVM(buf)
-	n, addr, err := pfcpServer.Conn.ReadFrom(buf)
-	// addr := ONVMaddr.ToUDPAddr()
+	n, addr, err := pfcpServer.Conn.ReadFromUDP(buf)
 	if err != nil {
-		return addr, err
+		return nil, err
 	}
 
-	err = msg.Unmarshal(buf[:n])
+	pfcpMsg := &pfcp.Message{}
+	msg := NewMessage(addr, pfcpMsg)
+
+	err = pfcpMsg.Unmarshal(buf[:n])
 	if err != nil {
-		return addr, err
+		return msg, err
 	}
 
-	if msg.IsRequest() {
-		//Todo: Implement SendingResponse type of reliable delivery
-		tx, err := pfcpServer.FindTransaction(msg, addr)
+	if pfcpMsg.IsRequest() {
+		// Todo: Implement SendingResponse type of reliable delivery
+		tx, err := pfcpServer.FindTransaction(pfcpMsg, addr)
 		if err != nil {
-			return addr, err
-		} else if tx != nil {
-			//err == nil && tx != nil => Resend Request
-			err = fmt.Errorf("Receive resend PFCP request")
+			return msg, err
+		}
+		if tx != nil {
+			// tx != nil => Already Replied => Resend Request
 			tx.EventChannel <- pfcp.ReceiveEvent{
 				Type:       pfcp.ReceiveEventTypeResendRequest,
 				RemoteAddr: addr,
 				RcvMsg:     pfcpMsg,
 			}
-			return addr, err
+			return msg, ErrReceivedResentRequest
 		} else {
-			//err == nil && tx == nil => New Request
-			return addr, nil
+			// tx == nil => New Request
+			return msg, nil
 		}
-	} else if msg.IsResponse() {
-		//trans onvmaddr to udpaddr
-		// onvmaddr, ok := pfcpServer.Conn.LocalAddr().(*onvmNet.ONVMAddr)
-		// if !ok {
-		// 	return addr, fmt.Errorf("Can't convert to udpaddr")
-		// }
-		// udpaddr := onvmaddr.ToUDPAddr()
-		udpaddr := pfcpServer.Conn.LocalAddr()
-		tx, err := pfcpServer.FindTransaction(msg, udpaddr)
+	} else if pfcpMsg.IsResponse() {
+		tx, err := pfcpServer.FindTransaction(pfcpMsg, pfcpServer.Conn.LocalAddr().(*net.UDPAddr))
 		if err != nil {
-			return addr, err
+			return msg, err
 		}
 
 		tx.EventChannel <- pfcp.ReceiveEvent{
@@ -130,7 +123,7 @@ func (pfcpServer *PfcpServer) ReadFrom(msg *pfcp.Message) (*net.UDPAddr, error) 
 		}
 	}
 
-	return addr, nil
+	return msg, nil
 }
 
 
