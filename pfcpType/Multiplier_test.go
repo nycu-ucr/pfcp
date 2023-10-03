@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMarshalActivatePredefinedRules(t *testing.T) {
-	testData := ActivatePredefinedRules{
-		PredefinedRulesName: []byte("test"),
+func TestMarshalMultiplier(t *testing.T) {
+	testData := Multiplier{
+		Multiplierdata: []byte("test"),
 	}
 	buf, err := testData.MarshalBinary()
 
@@ -16,14 +16,14 @@ func TestMarshalActivatePredefinedRules(t *testing.T) {
 	assert.Equal(t, []byte{116, 101, 115, 116}, buf)
 }
 
-func TestUnmarshalActivatePredefinedRules(t *testing.T) {
+func TestUnmarshalMultiplier(t *testing.T) {
 	buf := []byte{116, 101, 115, 116}
-	var testData ActivatePredefinedRules
+	var testData Multiplier
 	err := testData.UnmarshalBinary(buf)
 
 	assert.Nil(t, err)
-	expectData := ActivatePredefinedRules{
-		PredefinedRulesName: []byte("test"),
+	expectData := Multiplier{
+		Multiplierdata: []byte("test"),
 	}
 	assert.Equal(t, expectData, testData)
 }

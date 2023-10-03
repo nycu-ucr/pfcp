@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/nycu-ucr/pfcp/logger"
+	"github.com/free5gc/pfcp/logger"
 )
 
 // PFDContents - describe in TS 29.244 Figure 8.2.39-1: PFD Contents
@@ -83,7 +83,7 @@ func (p *PFDContents) UnmarshalBinary(data []byte) error {
 		return fmt.Errorf("Inadequate TLV length: %d", length)
 	}
 
-	var presenceByte = data[idx]
+	presenceByte := data[idx]
 	// presenceByte & spareByte
 	idx = idx + 2
 
@@ -144,7 +144,7 @@ func (p *PFDContents) UnmarshalBinary(data []byte) error {
 			return fmt.Errorf("Inadequate TLV length: %d", length)
 		}
 		p.CustomPFDContent = data[idx : idx+custemPFDContentLen]
-		//idx += custemPFDContentLen
+		// idx += custemPFDContentLen
 	}
 
 	return nil
