@@ -100,7 +100,11 @@ func (pfcpServer *PfcpServer) ReadFrom(msg *pfcp.Message) (*net.UDPAddr, error) 
 		} else if tx != nil {
 			//err == nil && tx != nil => Resend Request
 			err = fmt.Errorf("Receive resend PFCP request")
-			tx.EventChannel <- pfcp.ReceiveResendRequest
+			tx.EventChannel <- pfcp.ReceiveEvent{
+				Type:       pfcp.ReceiveEventTypeResendRequest,
+				RemoteAddr: addr,
+				RcvMsg:     pfcpMsg,
+			}
 			return addr, err
 		} else {
 			//err == nil && tx == nil => New Request
@@ -119,29 +123,16 @@ func (pfcpServer *PfcpServer) ReadFrom(msg *pfcp.Message) (*net.UDPAddr, error) 
 			return addr, err
 		}
 
-		tx.EventChannel <- pfcp.ReceiveValidResponse
+		tx.EventChannel <- pfcp.ReceiveEvent{
+			Type:       pfcp.ReceiveEventTypeValidResponse,
+			RemoteAddr: addr,
+			RcvMsg:     pfcpMsg,
+		}
 	}
 
 	return addr, nil
 }
 
-func (pfcpServer *PfcpServer) WriteTo(msg pfcp.Message, addr *net.UDPAddr) error {
-	buf, err := msg.Marshal()
-	if err != nil {
-		return err
-	}
-
-	/*TODO: check if all bytes of buf are sent*/
-	tx := pfcp.NewTransaction(msg, buf, pfcpServer.Conn, addr)
-
-	err = pfcpServer.PutTransaction(tx)
-	if err != nil {
-		return err
-	}
-
-	go pfcpServer.StartTxLifeCycle(tx)
-	return nil
-}
 
 func (pfcpServer *PfcpServer) WriteRequestTo(reqMsg *pfcp.Message, addr *net.UDPAddr) (resMsg *Message, err error) {
 	if !reqMsg.IsRequest() {
