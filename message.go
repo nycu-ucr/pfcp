@@ -2,7 +2,6 @@ package pfcp
 
 import (
 	"github.com/nycu-ucr/pfcp/pfcpType"
-	"github.com/free5gc/util_3gpp"
 )
 
 type Message struct {
