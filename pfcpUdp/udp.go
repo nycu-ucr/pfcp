@@ -40,6 +40,11 @@ func (t *ConsumerTable) Store(consumerAddr string, txTable *pfcp.TxTable) {
 	t.m.Store(consumerAddr, txTable)
 }
 
+func (t *ConsumerTable) LoadOrStore(consumerAddr string, storeTable *pfcp.TxTable) (*pfcp.TxTable, bool) {
+	txTable, loaded := t.m.LoadOrStore(consumerAddr, storeTable)
+	return txTable.(*pfcp.TxTable), loaded
+}
+
 func (t *ConsumerTable) Delete(consumerAddr string) {
 	t.m.Delete(consumerAddr)
 }
@@ -137,6 +142,49 @@ func (pfcpServer *PfcpServer) WriteTo(msg pfcp.Message, addr *net.UDPAddr) error
 	return nil
 }
 
+func (pfcpServer *PfcpServer) WriteRequestTo(reqMsg *pfcp.Message, addr *net.UDPAddr) (resMsg *Message, err error) {
+	if !reqMsg.IsRequest() {
+		return nil, errors.New("not a request message")
+	}
+
+	buf, err := reqMsg.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	tx := pfcp.NewTransaction(reqMsg, buf, pfcpServer.Conn, addr)
+
+	err = pfcpServer.PutTransaction(tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return pfcpServer.StartReqTxLifeCycle(tx)
+}
+
+func (pfcpServer *PfcpServer) WriteResponseTo(resMsg *pfcp.Message, addr *net.UDPAddr) {
+	if !resMsg.IsResponse() {
+		logger.PFCPLog.Warn("not a response message")
+		return
+	}
+
+	buf, err := resMsg.Marshal()
+	if err != nil {
+		logger.PFCPLog.Warnf("marshal error: %+v", err)
+		return
+	}
+
+	tx := pfcp.NewTransaction(resMsg, buf, pfcpServer.Conn, addr)
+
+	err = pfcpServer.PutTransaction(tx)
+	if err != nil {
+		logger.PFCPLog.Warnf("PutTransaction error: %+v", err)
+		return
+	}
+
+	go pfcpServer.StartResTxLifeCycle(tx)
+}
+
 func (pfcpServer *PfcpServer) Close() error {
 	return pfcpServer.Conn.Close()
 }
@@ -198,6 +246,37 @@ func (pfcpServer *PfcpServer) StartTxLifeCycle(tx *pfcp.Transaction) {
 	err := pfcpServer.RemoveTransaction(tx)
 	if err != nil {
 		logger.PFCPLog.Warnln(err)
+	}
+}
+
+func (pfcpServer *PfcpServer) StartReqTxLifeCycle(tx *pfcp.Transaction) (resMsg *Message, err error) {
+	defer func() {
+		// End Transaction
+		rmErr := pfcpServer.RemoveTransaction(tx)
+		if rmErr != nil {
+			logger.PFCPLog.Warnf("RemoveTransaction error: %+v", rmErr)
+		}
+	}()
+
+	// Start Transaction
+	event, err := tx.StartSendingRequest()
+	if err != nil {
+		return nil, err
+	}
+	return NewMessage(event.RemoteAddr, event.RcvMsg), nil
+}
+
+func (pfcpServer *PfcpServer) StartResTxLifeCycle(tx *pfcp.Transaction) {
+	// Start Transaction
+	err := tx.StartSendingResponse()
+	if err != nil {
+		logger.PFCPLog.Warnf("SendingResponse error: %+v", err)
+		return
+	}
+	// End Transaction
+	err = pfcpServer.RemoveTransaction(tx)
+	if err != nil {
+		logger.PFCPLog.Warnf("RemoveTransaction error: %+v", err)
 	}
 }
 
