@@ -242,7 +242,7 @@ type CreateFAR struct {
 
 type ForwardingParametersIEInFAR struct {
 	DestinationInterface    *pfcpType.DestinationInterface  `tlv:"42"`
-	NetworkInstance         *util_3gpp.Dnn                  `tlv:"22"`
+	NetworkInstance         *pfcpType.NetworkInstance       `tlv:"22"`
 	RedirectInformation     *pfcpType.RedirectInformation   `tlv:"38"`
 	OuterHeaderCreation     *pfcpType.OuterHeaderCreation   `tlv:"84"`
 	TransportLevelMarking   *pfcpType.TransportLevelMarking `tlv:"30"`
